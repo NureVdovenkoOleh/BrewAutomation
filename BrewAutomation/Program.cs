@@ -62,7 +62,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "¬вед≥ть сюди “≤Ћ№ » ваш токен (без слова Bearer)"
+        Description = "Token pls"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
