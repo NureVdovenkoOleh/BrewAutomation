@@ -98,4 +98,19 @@ app.UseCors("AllowWokwi");
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        Console.WriteLine("--> Database Migration successful!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"--> Error migration: {ex.Message}");
+    }
+}
+
 app.Run();
