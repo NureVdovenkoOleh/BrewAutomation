@@ -26,20 +26,13 @@ namespace BrewAutomation.API.Controllers
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized();
 
-
             var subscription = User.FindFirst("Subscription")?.Value;
-
             if (subscription == "Free")
             {
-                var recipesCount = await _context.Recipes
-                    .CountAsync(r => r.UserId == userId);
-
+                var recipesCount = await _context.Recipes.CountAsync(r => r.UserId == userId);
                 if (recipesCount >= 3)
                 {
-                    return StatusCode(403, new
-                    {
-                        message = "У вас тариф Free. Ліміт: 3 рецепти. Купіть Pro для безліміту."
-                    });
+                    return StatusCode(403, new { message = "У вас тариф Free. Ліміт: 3 рецепти." });
                 }
             }
 
@@ -47,7 +40,13 @@ namespace BrewAutomation.API.Controllers
             {
                 Name = createDto.Name,
                 Description = createDto.Description,
-                UserId = userId.Value
+                UserId = userId.Value,
+                RecipeSteps = createDto.Steps?.Select(s => new RecipeStep
+                {
+                    StepOrder = s.StepOrder,
+                    TargetTemperature = s.TargetTemperature,
+                    DurationMinutes = s.DurationMinutes
+                }).ToList() ?? new List<RecipeStep>()
             };
 
             _context.Recipes.Add(recipe);

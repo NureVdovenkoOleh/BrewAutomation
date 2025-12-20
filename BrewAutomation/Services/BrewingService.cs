@@ -17,7 +17,6 @@ namespace BrewAutomation.API.Services
 
         public async Task<IoTResponseDto> ProcessTelemetryAsync(TelemetryDto data)
         {
-            // 1. Знаходимо сесію
             var session = await _context.BrewSessions
                 .Include(s => s.Recipe)
                 .ThenInclude(r => r.RecipeSteps)
