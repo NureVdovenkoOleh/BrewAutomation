@@ -74,7 +74,7 @@ builder.Services.AddSwaggerGen(options =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                }   
             },
             new string[] {}
         }
@@ -92,9 +92,9 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowWokwi");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowWokwi");
 
 app.MapControllers();
 

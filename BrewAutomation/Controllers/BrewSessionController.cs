@@ -71,21 +71,17 @@ namespace BrewAutomation.API.Controllers
             if (userId == null) return Unauthorized();
 
             var query = _context.BrewSessions
+                .Include(s => s.Recipe) 
                 .Where(s => s.UserId == userId.Value)
-                .OrderByDescending(s => s.StartTime) 
+                .OrderByDescending(s => s.StartTime)
                 .AsNoTracking();
 
             var subscription = User.FindFirst("Subscription")?.Value;
 
             if (subscription == "Free")
             {
-
                 var sessions = await query.Take(5).ToListAsync();
-                return Ok(new
-                {
-                    data = sessions,
-                    message = "Тариф Free: показано останні 5 варок."
-                });
+                return Ok(sessions);
             }
 
             return Ok(await query.ToListAsync());
@@ -113,6 +109,38 @@ namespace BrewAutomation.API.Controllers
             }
 
             return Ok(session);
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveSession()
+        {
+            var userId = GetUserIdFromToken();
+            if (userId == null) return Unauthorized();
+
+            var activeSession = await _context.BrewSessions
+                .Where(s => s.UserId == userId.Value && s.Status == "в процесі")
+                .FirstOrDefaultAsync();
+
+            if (activeSession == null)
+            {
+                return NoContent(); 
+            }
+
+            return Ok(new { sessionId = activeSession.SessionId });
+        }
+
+        [HttpPost("{id}/stop")]
+        public async Task<IActionResult> StopSession(int id)
+        {
+            var userId = GetUserIdFromToken();
+            var session = await _context.BrewSessions
+                .FirstOrDefaultAsync(s => s.SessionId == id && s.UserId == userId);
+
+            if (session == null) return NotFound();
+
+            session.Status = "завершено";
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpGet("{id}/status")]

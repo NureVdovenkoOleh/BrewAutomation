@@ -82,7 +82,8 @@ namespace BrewAutomation.API.Controllers
             }
 
             var recipes = await _context.Recipes
-                .Where(r => r.UserId == userId.Value) 
+                .Include(r => r.RecipeSteps)
+                .Where(r => r.UserId == userId.Value)
                 .AsNoTracking()
                 .ToListAsync();
 

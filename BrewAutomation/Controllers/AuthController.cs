@@ -1,6 +1,7 @@
 ﻿using BrewAutomation.API.Data;
 using BrewAutomation.API.Models;
 using BrewAutomation.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -47,13 +48,22 @@ namespace BrewAutomation.API.Controllers
             return StatusCode(201, new { message = "Користувача успішно створено." });
         }
 
+        [Authorize]
+        [HttpGet("profile")]
+        public IActionResult GetProfile()
+        {
+            var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var subscription = User.Claims.FirstOrDefault(c => c.Type == "Subscription")?.Value ?? "Free";
+
+            return Ok(new { email, subscription });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-            // 1. Перевірка: чи існує юзер?
             if (user == null)
             {
                 return Unauthorized(new { message = "Невірний email або пароль." });
