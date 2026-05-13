@@ -10,12 +10,17 @@ services:
     ports:
       - "5432:5432"
 
-  backend:
+backend_replica_1:
     build: .  
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Database=brewdb;Username=myuser;Password=mypassword
     depends_on:
       - db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'      
+          memory: 256M     
 
   nginx:
     image: nginx:latest
